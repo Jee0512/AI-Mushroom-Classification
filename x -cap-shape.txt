@@ -1,0 +1,43 @@
+x -cap-shape-	
+s -cap-surface
+n -cap-color	
+t -bruises	
+p -odor	
+f -gill-attachment	
+c -gill-spacing	
+n -gill-size	
+k -gill-color	
+e -stalk-shape	
+e -stalk-root	
+s -stalk-surface-above-ring	
+s -stalk-surface-below-ring	
+w -stalk-color-above-ring	
+w -stalk-color-below-ring	
+p -veil-type	
+w -veil-color	
+o -ring-number	
+p -ring-type	
+k -spore-print-color	
+s -population	
+u -habitat
+
+
+cap-surface: s -> 2
+bruises: t -> 1
+odor: p -> 6
+gill-attachment: f -> 1
+gill-spacing: c -> 0
+gill-size: n -> 1
+gill-color: k -> 4
+stalk-shape: e -> 0
+stalk-root: e -> 3
+stalk-surface-above-ring: s -> 2
+stalk-surface-below-ring: s -> 2
+stalk-color-above-ring: w -> 7
+stalk-color-below-ring: w -> 7
+veil-color: w -> 2
+ring-number: o -> 1
+ring-type: p -> 4
+spore-print-color: k -> 2
+population: s -> 3
+habitat: u -> 5

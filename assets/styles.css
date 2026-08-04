@@ -1,0 +1,536 @@
+/* ═══════════════════════════════════════════════════════════════════
+   🍄 MUSHROOM CLASSIFIER - Global Styles
+   Production-grade CSS with animations, transitions, and responsive design
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── CSS Variables / Theme ──────────────────────────────────────── */
+:root {
+    --primary: #2E7D32;
+    --primary-light: #4CAF50;
+    --primary-dark: #1B5E20;
+    --secondary: #1565C0;
+    --accent: #FF8F00;
+    --danger: #D32F2F;
+    --success: #2E7D32;
+    --warning: #F57C00;
+    --info: #0288D1;
+    --bg: #FAFAFA;
+    --bg-card: #FFFFFF;
+    --bg-sidebar: #1B1B2F;
+    --text: #212121;
+    --text-secondary: #616161;
+    --text-light: #9E9E9E;
+    --border: #E0E0E0;
+    --shadow: 0 2px 8px rgba(0,0,0,0.08);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+    --radius: 12px;
+    --radius-sm: 8px;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Dark Theme Variables ───────────────────────────────────────── */
+[data-theme="dark"] {
+    --primary: #66BB6A;
+    --primary-light: #81C784;
+    --primary-dark: #4CAF50;
+    --bg: #121212;
+    --bg-card: #1E1E1E;
+    --bg-sidebar: #0D0D1A;
+    --text: #E0E0E0;
+    --text-secondary: #BDBDBD;
+    --text-light: #757575;
+    --border: #333333;
+    --shadow: 0 2px 8px rgba(0,0,0,0.3);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.4);
+}
+
+/* ── Base Styles ────────────────────────────────────────────────── */
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
+    transition: var(--transition);
+}
+
+/* ── Main Container ─────────────────────────────────────────────── */
+.main-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem 2rem;
+}
+
+/* ── Sidebar ────────────────────────────────────────────────────── */
+.sidebar {
+    background: var(--bg-sidebar) !important;
+    background: linear-gradient(180deg, #1B1B2F 0%, #16213E 100%) !important;
+}
+
+.sidebar .sidebar-content {
+    padding: 1rem 0;
+}
+
+/* ── Cards ──────────────────────────────────────────────────────── */
+.card {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    transition: var(--transition);
+    margin-bottom: 1rem;
+}
+
+.card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+}
+
+.card-header {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.card-metric {
+    text-align: center;
+    padding: 1rem;
+}
+
+.card-metric .metric-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.card-metric .metric-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-top: 0.25rem;
+}
+
+/* ── Hero Section ───────────────────────────────────────────────── */
+.hero-section {
+    text-align: center;
+    padding: 3rem 1rem;
+    background: linear-gradient(135deg, #1B5E20 0%, #2E7D32 50%, #388E3C 100%);
+    border-radius: var(--radius);
+    color: white;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    animation: heroGlow 10s ease-in-out infinite;
+}
+
+@keyframes heroGlow {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(10%, 10%); }
+}
+
+.hero-title {
+    font-size: 2.8rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.hero-subtitle {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    margin-bottom: 1.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 1.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.hero-stat {
+    text-align: center;
+}
+
+.hero-stat-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+.hero-stat-label {
+    font-size: 0.85rem;
+    opacity: 0.8;
+}
+
+/* ── Buttons ────────────────────────────────────────────────────── */
+.stButton > button {
+    border-radius: var(--radius-sm) !important;
+    font-weight: 600 !important;
+    transition: var(--transition) !important;
+    border: none !important;
+    padding: 0.5rem 1.5rem !important;
+}
+
+.stButton > button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Primary button */
+.stButton > button[data-testid="baseButton-primary"] {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%) !important;
+    color: white !important;
+}
+
+/* ── Metrics ────────────────────────────────────────────────────── */
+.stMetric {
+    background: var(--bg-card);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+    border: 1px solid var(--border);
+    transition: var(--transition);
+}
+
+.stMetric:hover {
+    box-shadow: var(--shadow);
+}
+
+.stMetric label {
+    color: var(--text-secondary) !important;
+    font-size: 0.85rem !important;
+}
+
+.stMetric [data-testid="stMetricValue"] {
+    font-size: 1.5rem !important;
+    font-weight: 700 !important;
+    color: var(--text) !important;
+}
+
+/* ── Info, Success, Warning, Error Boxes ────────────────────────── */
+.stAlert {
+    border-radius: var(--radius-sm) !important;
+    border: none !important;
+}
+
+.stAlert > div {
+    border-radius: var(--radius-sm) !important;
+}
+
+/* ── Tabs ───────────────────────────────────────────────────────── */
+.stTabs [data-baseweb="tab-list"] {
+    gap: 0.5rem;
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 0.5rem;
+    border: 1px solid var(--border);
+}
+
+.stTabs [data-baseweb="tab"] {
+    border-radius: var(--radius-sm) !important;
+    padding: 0.5rem 1rem !important;
+    transition: var(--transition);
+}
+
+.stTabs [aria-selected="true"] {
+    background: var(--primary) !important;
+    color: white !important;
+}
+
+/* ── Progress Bars ──────────────────────────────────────────────── */
+.stProgress > div > div {
+    background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%) !important;
+    border-radius: 10px !important;
+}
+
+/* ── Expander ───────────────────────────────────────────────────── */
+.streamlit-expanderHeader {
+    background: var(--bg-card) !important;
+    border-radius: var(--radius-sm) !important;
+    border: 1px solid var(--border) !important;
+    transition: var(--transition);
+}
+
+.streamlit-expanderHeader:hover {
+    background: var(--bg) !important;
+}
+
+/* ── DataFrames ─────────────────────────────────────────────────── */
+.stDataFrame {
+    border-radius: var(--radius-sm) !important;
+    border: 1px solid var(--border) !important;
+}
+
+.stDataFrame [data-testid="stDataFrameResizable"] {
+    border-radius: var(--radius-sm) !important;
+}
+
+/* ── File Uploader ──────────────────────────────────────────────── */
+.stFileUploader {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 2rem;
+    text-align: center;
+    transition: var(--transition);
+    background: var(--bg-card);
+}
+
+.stFileUploader:hover {
+    border-color: var(--primary);
+    background: rgba(46, 125, 50, 0.05);
+}
+
+/* ── Animations ─────────────────────────────────────────────────── */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from { transform: translateX(-20px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-out;
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+.slide-in {
+    animation: slideIn 0.3s ease-out;
+}
+
+/* ── Custom Gauge ───────────────────────────────────────────────── */
+.gauge-container {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 0 auto;
+}
+
+.gauge-value {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--text);
+}
+
+.gauge-label {
+    position: absolute;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+/* ── Status Badges ──────────────────────────────────────────────── */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.badge-success {
+    background: rgba(46, 125, 50, 0.1);
+    color: var(--success);
+    border: 1px solid rgba(46, 125, 50, 0.2);
+}
+
+.badge-danger {
+    background: rgba(211, 47, 47, 0.1);
+    color: var(--danger);
+    border: 1px solid rgba(211, 47, 47, 0.2);
+}
+
+.badge-warning {
+    background: rgba(245, 124, 0, 0.1);
+    color: var(--warning);
+    border: 1px solid rgba(245, 124, 0, 0.2);
+}
+
+.badge-info {
+    background: rgba(2, 136, 209, 0.1);
+    color: var(--info);
+    border: 1px solid rgba(2, 136, 209, 0.2);
+}
+
+/* ── Feature Comparison Table ───────────────────────────────────── */
+.feature-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+}
+
+.feature-table th,
+.feature-table td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+}
+
+.feature-table th {
+    background: var(--bg);
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.feature-table tr:hover {
+    background: rgba(46, 125, 50, 0.05);
+}
+
+/* ── Footer ─────────────────────────────────────────────────────── */
+.footer {
+    text-align: center;
+    padding: 2rem 0;
+    border-top: 1px solid var(--border);
+    margin-top: 2rem;
+    color: var(--text-light);
+    font-size: 0.85rem;
+}
+
+.footer a {
+    color: var(--primary);
+    text-decoration: none;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 1.8rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1rem;
+    }
+    
+    .hero-stats {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .card {
+        padding: 1rem;
+    }
+    
+    .main-container {
+        padding: 0.5rem 1rem;
+    }
+}
+
+/* ── Loading Skeletons ──────────────────────────────────────────── */
+.skeleton {
+    background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg) 50%, var(--bg-card) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+    border-radius: var(--radius-sm);
+    height: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.skeleton-card {
+    height: 150px;
+    border-radius: var(--radius);
+}
+
+/* ── Tooltips ───────────────────────────────────────────────────── */
+.tooltip-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--text-light);
+    color: white;
+    font-size: 0.7rem;
+    cursor: help;
+    margin-left: 0.3rem;
+}
+
+/* ── Scrollbar ──────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--text-light);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+}
+
+/* ── Print Styles ───────────────────────────────────────────────── */
+@media print {
+    .sidebar {
+        display: none !important;
+    }
+    
+    .card {
+        box-shadow: none !important;
+        border: 1px solid #ddd !important;
+        break-inside: avoid;
+    }
+}
