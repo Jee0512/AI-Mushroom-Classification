@@ -37,68 +37,95 @@ TEXT_LIGHT = HexColor("#888888")
 
 
 def _create_styles():
-    """Create custom paragraph styles for the report."""
+    """Create custom paragraph styles for the report.
+
+    This function is idempotent: it can be called repeatedly without raising
+    "Style already defined" errors, making it safe even when the shared
+    ReportLab stylesheet is reused across multiple report generations.
+    """
     styles = getSampleStyleSheet()
 
-    # Helper to add a style only if it doesn't already exist
-    def add_style(name, **kwargs):
+    # Helper to add a style only if it doesn't already exist.
+    # Using a fresh ParagraphStyle each time prevents "already defined" errors
+    # that can occur when querying the shared sample stylesheet.
+    def add_style(name, style):
         if name not in styles:
-            styles.add(ParagraphStyle(name=name, **kwargs))
+            styles.add(style)
         return styles[name]
 
     add_style(
         "ReportTitle",
-        fontSize=24,
-        leading=28,
-        alignment=TA_CENTER,
-        fontName="Helvetica-Bold",
-        textColor=PRIMARY,
+        ParagraphStyle(
+            name="ReportTitle",
+            fontSize=24,
+            leading=28,
+            alignment=TA_CENTER,
+            fontName="Helvetica-Bold",
+            textColor=PRIMARY,
+        ),
     )
+    add_style(
         "ReportSubtitle",
-        fontSize=12,
-        leading=16,
-        alignment=TA_CENTER,
-        fontName="Helvetica",
-        textColor=TEXT_MED,
-        spaceAfter=12,
+        ParagraphStyle(
+            name="ReportSubtitle",
+            fontSize=12,
+            leading=16,
+            alignment=TA_CENTER,
+            fontName="Helvetica",
+            textColor=TEXT_MED,
+            spaceAfter=12,
+        ),
     )
     add_style(
         "SectionHeading",
-        fontSize=16,
-        leading=20,
-        fontName="Helvetica-Bold",
-        spaceBefore=12,
-        spaceAfter=8,
-        textColor=PRIMARY,
+        ParagraphStyle(
+            name="SectionHeading",
+            fontSize=16,
+            leading=20,
+            fontName="Helvetica-Bold",
+            spaceBefore=12,
+            spaceAfter=8,
+            textColor=PRIMARY,
+        ),
     )
     add_style(
         "SubHeading",
-        fontSize=13,
-        leading=16,
-        fontName="Helvetica-Bold",
-        spaceAfter=6,
-        textColor=TEXT_DARK,
+        ParagraphStyle(
+            name="SubHeading",
+            fontSize=13,
+            leading=16,
+            fontName="Helvetica-Bold",
+            spaceAfter=6,
+            textColor=TEXT_DARK,
+        ),
     )
-    # Override the built-in BodyText style rather than re-adding it
-    styles["BodyText"] = ParagraphStyle(
-        name="BodyText",
-        fontSize=10,
-        leading=13,
-        fontName="Helvetica",
-        spaceAfter=6,
-        textColor=TEXT_MED,
-    )
+    # Override the built-in BodyText style.
+    # StyleSheet objects do not support item assignment, and re-adding a style
+    # with an existing name raises an error. So we retrieve the existing
+    # BodyText style and update its attributes in place.
+    body_text = styles["BodyText"]
+    body_text.fontSize = 10
+    body_text.leading = 13
+    body_text.fontName = "Helvetica"
+    body_text.spaceAfter = 6
+    body_text.textColor = TEXT_MED
+
     add_style(
         "DisclaimerText",
-        fontSize=8,
-        leading=11,
-        fontName="Helvetica-Oblique",
-        textColor=TEXT_LIGHT,
-        spaceBefore=16,
-        spaceAfter=8,
+        ParagraphStyle(
+            name="DisclaimerText",
+            fontSize=8,
+            leading=11,
+            fontName="Helvetica-Oblique",
+            textColor=TEXT_LIGHT,
+            spaceBefore=16,
+            spaceAfter=8,
+        ),
     )
 
     return styles
+
+
 def _image_to_buffer(img: PILImage.Image, max_size=(600, 600)) -> io.BytesIO:
     """Convert a PIL image to a BytesIO buffer, resized to fit."""
     img = img.copy()
@@ -326,3 +353,4 @@ def generate_safety_report(report_data: dict) -> bytes:
     doc.build(story)
     buffer.seek(0)
     return buffer.getvalue()
+
