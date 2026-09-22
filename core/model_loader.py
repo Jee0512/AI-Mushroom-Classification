@@ -1,37 +1,59 @@
 """
 Model loading utilities with caching for the Mushroom Classifier.
 Handles loading of SVM model, label encoders, scaler, and image model.
-All paths are relative to the project root for portability.
 """
-import streamlit as st
+import json
 import pickle
-import os
-from pathlib import Path
-from config import SVM_MODEL_PATH, LABEL_ENCODERS_PATH, SCALER_PATH, IMAGE_MODEL_PATH
+
+import streamlit as st
+
+from config import (
+    DATASET_PATH,
+    FEATURE_ORDER,
+    FEATURE_ORDER_PATH,
+    FEATURE_VALUE_MAP,
+    IMAGE_MODEL_PATH,
+    LABEL_ENCODERS_PATH,
+    SCALER_PATH,
+    SVM_MODEL_PATH,
+)
+from core.data_transformer import transform_batch, ui_options_for_encoder
+
+
+def load_feature_order(label_encoders: dict) -> list:
+    """Load persisted training feature order, else use canonical CSV order."""
+    if FEATURE_ORDER_PATH.exists():
+        try:
+            meta = json.loads(FEATURE_ORDER_PATH.read_text(encoding="utf-8"))
+            order = meta.get("feature_order") or []
+            if order and all(f in label_encoders for f in order):
+                return list(order)
+        except Exception:
+            pass
+    return [f for f in FEATURE_ORDER if f in label_encoders]
 
 
 @st.cache_resource(show_spinner="Loading prediction models...")
 def load_manual_models():
     """
-    Load the SVM model, label encoders, and scaler for manual prediction.
-    Uses relative paths from the project root.
-    Caches the resources to avoid reloading on every rerun.
-    
+    Load the SVM model, label encoders, scaler, and authoritative feature order.
+
     Returns:
         tuple: (model, label_encoders, scaler, feature_options, feature_names)
     """
     try:
-        # Validate model files exist
         for path, name in [
             (SVM_MODEL_PATH, "svm_model.pkl"),
             (LABEL_ENCODERS_PATH, "label_encoders.pkl"),
             (SCALER_PATH, "scaler.pkl"),
         ]:
             if not path.exists():
-                st.error(f"Model file not found: {name}. Please ensure it exists in the 'models' directory.")
+                st.error(
+                    f"Model file not found: {name}. "
+                    "Run `python train_svm.py` from the project root to create it."
+                )
                 return None, None, None, None, None
 
-        # Load models
         with open(SVM_MODEL_PATH, "rb") as f:
             model = pickle.load(f)
         with open(LABEL_ENCODERS_PATH, "rb") as f:
@@ -39,12 +61,14 @@ def load_manual_models():
         with open(SCALER_PATH, "rb") as f:
             scaler = pickle.load(f)
 
-        # Build feature options from label encoders
+        feature_names = load_feature_order(label_encoders)
         feature_options = {}
-        feature_names = []
-        for feature, le in label_encoders.items():
-            feature_options[feature] = le.classes_.tolist()
-            feature_names.append(feature)
+        for feature in feature_names:
+            le = label_encoders[feature]
+            if feature in FEATURE_VALUE_MAP:
+                feature_options[feature] = ui_options_for_encoder(feature, le)
+            else:
+                feature_options[feature] = [str(c) for c in le.classes_]
 
         return model, label_encoders, scaler, feature_options, feature_names
 
@@ -58,114 +82,91 @@ def load_manual_models():
 
 @st.cache_resource(show_spinner="Loading image classification model...")
 def load_image_model():
-    """
-    Load the EfficientNetB0 model for image classification.
-    Uses relative path from the project root.
-    Caches the resource to avoid reloading on every rerun.
-    
-    Returns:
-        tensorflow.keras.Model or None
-    """
-    if not IMAGE_MODEL_PATH.exists():
-        st.error(f"Image model file not found: 'efficientnet_model.h5'. Please ensure it exists in the 'models' directory.")
-        return None
+    """Load image classification model from models/ directory."""
+    from config import PYTORCH_IMAGE_MODEL_PATH, SKLEARN_IMAGE_MODEL_PATH, IMAGE_MODEL_PATH
+    import pickle
 
-    try:
-        # Lazy import to avoid loading tensorflow if not needed
-        from tensorflow.keras.models import load_model as keras_load_model
-        model = keras_load_model(str(IMAGE_MODEL_PATH))
-        return model
-    except ImportError:
-        st.error("TensorFlow is not installed. Please install it with: pip install tensorflow")
-        return None
-    except Exception as e:
-        st.error(f"Error loading image classification model: {str(e)}. Ensure the model file is valid.")
-        return None
+    # 1. Try PyTorch model if PyTorch is installed
+    if PYTORCH_IMAGE_MODEL_PATH.exists():
+        try:
+            import torch
+            model = torch.jit.load(str(PYTORCH_IMAGE_MODEL_PATH))
+            model.eval()
+            return model
+        except Exception:
+            pass
+
+    # 2. Try standalone Scikit-Learn image model (No PyTorch/TensorFlow required)
+    if SKLEARN_IMAGE_MODEL_PATH.exists():
+        try:
+            with open(SKLEARN_IMAGE_MODEL_PATH, "rb") as f:
+                model = pickle.load(f)
+            return model
+        except Exception:
+            pass
+
+    # 3. Try Keras model if TensorFlow is available
+    if IMAGE_MODEL_PATH.exists():
+        try:
+            from tensorflow.keras.models import load_model as keras_load_model
+            return keras_load_model(str(IMAGE_MODEL_PATH))
+        except Exception:
+            pass
+
+    return None
 
 
 @st.cache_resource(show_spinner="Loading training data sample...")
-def load_training_data_sample(n_samples: int = 100):
+def load_training_data_sample(n_samples: int = 50):
     """
-    Load a sample of the original training data for SHAP background.
-    This reads the CSV and transforms it using label encoders and scaler.
-    
-    Args:
-        n_samples: Number of samples to load
-    
-    Returns:
-        numpy.ndarray or None: Scaled training data sample
+    Load a scaled sample of the original training data for SHAP background.
+    Encodes UCI letter codes with the same LabelEncoders used at train time.
     """
     try:
         import pandas as pd
-        from config import DATASET_PATH
-        
-        # Load models first to get encoders
-        model, label_encoders, scaler, feature_options, feature_names = load_manual_models()
-        if model is None or scaler is None:
+
+        model, label_encoders, scaler, _feature_options, feature_names = load_manual_models()
+        if model is None or scaler is None or not feature_names:
             return None
-        
-        # Load dataset
+
         if not DATASET_PATH.exists():
-            st.warning(f"Dataset file not found at {DATASET_PATH}. Using simplified SHAP background.")
             return None
-        
+
         df = pd.read_csv(DATASET_PATH)
-        
-        # Drop the target column (usually 'class' or 'target')
-        X = df.drop(columns=["class"], errors="ignore")
-        
-        # Ensure we have the right features
-        available_features = [f for f in feature_names if f in X.columns]
-        if len(available_features) < len(feature_names):
-            st.warning("Some features missing from dataset. Using available features for SHAP background.")
-        
-        X = X[available_features]
-        
-        # Encode categorical features
-        for feature in available_features:
-            if feature in label_encoders:
-                le = label_encoders[feature]
-                X[feature] = X[feature].map(
-                    lambda x: le.transform([x])[0] if x in le.classes_ else 0
-                )
-        
-        # Sample and scale
-        X_sample = X.sample(min(n_samples, len(X)), random_state=42)
-        X_scaled = scaler.transform(X_sample)
-        
-        return X_scaled
-    
-    except Exception as e:
-        st.warning(f"Could not load training data for SHAP background: {str(e)}")
+        available = [f for f in feature_names if f in df.columns]
+        if len(available) != len(feature_names):
+            return None
+
+        sample = df[available].sample(min(n_samples, len(df)), random_state=42)
+        return transform_batch(sample, label_encoders, scaler, feature_names)
+
+    except Exception:
         return None
 
 
 @st.cache_data
 def get_feature_options():
-    """
-    Get feature options without loading the full model.
-    Useful for encyclopedia pages.
-    
-    Returns:
-        dict: Feature name -> list of options
-    """
+    """Get feature options without loading the full model."""
     try:
         if not LABEL_ENCODERS_PATH.exists():
             return {}
-        
+
         with open(LABEL_ENCODERS_PATH, "rb") as f:
             label_encoders = pickle.load(f)
-        
+
+        feature_names = load_feature_order(label_encoders)
         feature_options = {}
-        for feature, le in label_encoders.items():
-            feature_options[feature] = le.classes_.tolist()
-        
+        for feature in feature_names:
+            le = label_encoders[feature]
+            if feature in FEATURE_VALUE_MAP:
+                feature_options[feature] = ui_options_for_encoder(feature, le)
+            else:
+                feature_options[feature] = [str(c) for c in le.classes_]
         return feature_options
     except Exception:
         return {}
 
 
 def get_feature_display_name(feature: str) -> str:
-    """Get the human-readable display name for a feature."""
     from config import FEATURE_DISPLAY_NAMES
     return FEATURE_DISPLAY_NAMES.get(feature, feature.replace("-", " ").title())

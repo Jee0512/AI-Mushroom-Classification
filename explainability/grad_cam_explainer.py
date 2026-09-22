@@ -3,8 +3,12 @@ Grad-CAM explainability utilities for the Mushroom Classifier.
 Generates class activation heatmaps for image classification models.
 """
 import numpy as np
-import tensorflow as tf
-from tensorflow import keras
+try:
+    import tensorflow as tf
+    from tensorflow import keras
+except ImportError:
+    tf = None
+    keras = None
 from PIL import Image
 import matplotlib.cm as cm
 
@@ -22,6 +26,9 @@ def make_gradcam_heatmap(img_array, model, last_conv_layer_name, pred_index=None
     Returns:
         numpy.ndarray: Heatmap values normalized to [0, 1]
     """
+    if tf is None:
+        raise ImportError("TensorFlow is required for Grad-CAM but is not installed.")
+
     # Create a model that maps input to activations of the last conv layer and output
     grad_model = tf.keras.models.Model(
         [model.inputs],
@@ -60,6 +67,9 @@ def find_last_conv_layer(model) -> str:
     Returns:
         str: Layer name, or None if no conv layer found
     """
+    if keras is None:
+        return None
+
     for layer in reversed(model.layers):
         if isinstance(layer, keras.layers.Conv2D) and "conv" in layer.name:
             return layer.name

@@ -19,7 +19,58 @@ DEPLOYMENT_DIR = ROOT_DIR / "deployment"
 SVM_MODEL_PATH = MODELS_DIR / "svm_model.pkl"
 LABEL_ENCODERS_PATH = MODELS_DIR / "label_encoders.pkl"
 SCALER_PATH = MODELS_DIR / "scaler.pkl"
+FEATURE_ORDER_PATH = MODELS_DIR / "feature_order.json"
+TRAINING_METRICS_PATH = MODELS_DIR / "training_metrics.json"
 IMAGE_MODEL_PATH = MODELS_DIR / "efficientnet_model.h5"
+PYTORCH_IMAGE_MODEL_PATH = MODELS_DIR / "image_model.pt"
+SKLEARN_IMAGE_MODEL_PATH = MODELS_DIR / "image_model.pkl"
+
+# ── Authoritative feature order (UCI mushrooms.csv column order, excluding class)
+FEATURE_ORDER = [
+    "cap-shape",
+    "cap-surface",
+    "cap-color",
+    "bruises",
+    "odor",
+    "gill-attachment",
+    "gill-spacing",
+    "gill-size",
+    "gill-color",
+    "stalk-shape",
+    "stalk-root",
+    "stalk-surface-above-ring",
+    "stalk-surface-below-ring",
+    "stalk-color-above-ring",
+    "stalk-color-below-ring",
+    "veil-type",
+    "veil-color",
+    "ring-number",
+    "ring-type",
+    "spore-print-color",
+    "population",
+    "habitat",
+]
+
+FEATURE_GROUPS = {
+    "Cap": ["cap-shape", "cap-surface", "cap-color"],
+    "Gills": ["gill-attachment", "gill-spacing", "gill-size", "gill-color"],
+    "Stalk": [
+        "stalk-shape",
+        "stalk-root",
+        "stalk-surface-above-ring",
+        "stalk-surface-below-ring",
+        "stalk-color-above-ring",
+        "stalk-color-below-ring",
+    ],
+    "Veil & Ring": ["veil-type", "veil-color", "ring-number", "ring-type"],
+    "Other": ["bruises", "odor", "spore-print-color", "population", "habitat"],
+}
+
+SAFETY_DISCLAIMER = (
+    "This tool is for educational and research purposes only. "
+    "Do NOT use it as the sole basis for deciding whether a wild mushroom is safe to eat. "
+    "Many poisonous species resemble edible ones. Always consult a qualified mycologist."
+)
 
 # ── Dataset ────────────────────────────────────────────────────────
 DATASET_PATH = DATA_DIR / "mushrooms.csv"
@@ -81,6 +132,72 @@ FEATURE_DISPLAY_NAMES = {
     "habitat": "Habitat",
 }
 
+# ── Dataset codes (UCI) → human-readable UI labels ─────────────────
+# Keys are the actual CSV values. Training fits LabelEncoders on these codes.
+FEATURE_VALUE_MAP = {
+    "cap-shape": {
+        "b": "Bell", "c": "Conical", "x": "Convex", "f": "Flat", "k": "Knobbed", "s": "Sunken",
+    },
+    "cap-surface": {"f": "Fibrous", "g": "Grooves", "y": "Scaly", "s": "Smooth"},
+    "cap-color": {
+        "n": "Brown", "b": "Buff", "c": "Cinnamon", "g": "Gray", "r": "Green",
+        "p": "Pink", "u": "Purple", "e": "Red", "w": "White", "y": "Yellow",
+    },
+    "bruises": {"t": "Yes", "f": "No"},
+    "odor": {
+        "a": "Almond", "l": "Anise", "c": "Creosote", "y": "Fishy", "f": "Foul",
+        "m": "Musty", "n": "None", "p": "Pungent", "s": "Spicy",
+    },
+    "gill-attachment": {"a": "Attached", "d": "Descending", "f": "Free", "n": "Notched"},
+    "gill-spacing": {"c": "Close", "w": "Crowded", "d": "Distant"},
+    "gill-size": {"b": "Broad", "n": "Narrow"},
+    "gill-color": {
+        "k": "Black", "n": "Brown", "b": "Buff", "h": "Chocolate", "g": "Gray", "r": "Green",
+        "o": "Orange", "p": "Pink", "u": "Purple", "e": "Red", "w": "White", "y": "Yellow",
+    },
+    "stalk-shape": {"e": "Enlarging", "t": "Tapering"},
+    "stalk-root": {
+        "b": "Bulbous", "c": "Club", "u": "Cup", "e": "Equal",
+        "z": "Rhizomorphs", "r": "Rooted", "?": "Missing",
+    },
+    "stalk-surface-above-ring": {"f": "Fibrous", "y": "Scaly", "k": "Silky", "s": "Smooth"},
+    "stalk-surface-below-ring": {"f": "Fibrous", "y": "Scaly", "k": "Silky", "s": "Smooth"},
+    "stalk-color-above-ring": {
+        "n": "Brown", "b": "Buff", "c": "Cinnamon", "g": "Gray", "o": "Orange",
+        "p": "Pink", "e": "Red", "w": "White", "y": "Yellow",
+    },
+    "stalk-color-below-ring": {
+        "n": "Brown", "b": "Buff", "c": "Cinnamon", "g": "Gray", "o": "Orange",
+        "p": "Pink", "e": "Red", "w": "White", "y": "Yellow",
+    },
+    "veil-type": {"p": "Partial", "u": "Universal"},
+    "veil-color": {"n": "Brown", "o": "Orange", "w": "White", "y": "Yellow"},
+    "ring-number": {"n": "None", "o": "One", "t": "Two"},
+    "ring-type": {
+        "c": "Cobwebby", "e": "Evanescent", "f": "Flaring", "l": "Large",
+        "n": "None", "p": "Pendant", "s": "Sheathing", "z": "Zone",
+    },
+    "spore-print-color": {
+        "k": "Black", "n": "Brown", "b": "Buff", "h": "Chocolate", "r": "Green",
+        "o": "Orange", "u": "Purple", "w": "White", "y": "Yellow",
+    },
+    "population": {
+        "a": "Abundant", "c": "Clustered", "n": "Numerous",
+        "s": "Scattered", "v": "Several", "y": "Solitary",
+    },
+    "habitat": {
+        "g": "Grasses", "l": "Leaves", "m": "Meadows", "p": "Paths",
+        "u": "Urban", "w": "Waste", "d": "Woods",
+    },
+}
+
+# English labels for each feature (dict insertion order). Prefer encoder.classes_
+# mapped through FEATURE_VALUE_MAP when building UI options.
+FEATURE_MAPPING = {
+    feature: list(mapping.values())
+    for feature, mapping in FEATURE_VALUE_MAP.items()
+}
+
 # ── Feature Descriptions (for encyclopedia) ────────────────────────
 FEATURE_DESCRIPTIONS = {
     "cap-shape": "The shape of the mushroom cap (e.g., bell, conical, convex, flat, knobbed, sunken). This is a primary visual characteristic used in mushroom identification.",
@@ -116,6 +233,8 @@ CLASS_COLORS = {0: SUCCESS_COLOR, 1: DANGER_COLOR}
 IMAGE_TARGET_SIZE = (224, 224)
 ALLOWED_IMAGE_TYPES = ["jpg", "jpeg", "png"]
 MAX_IMAGE_SIZE_MB = 10
+ORANGE_HERO_PATH = ASSETS_DIR / "orange_hero.jpg"
+GREEN_CENTER_PATH = ASSETS_DIR / "green_center.jpg"
 
 # ── History Settings ───────────────────────────────────────────────
 HISTORY_DB_PATH = ROOT_DIR / "data" / "prediction_history.db"
@@ -123,16 +242,16 @@ MAX_HISTORY_RECORDS = 1000
 
 # ── Page Configuration ─────────────────────────────────────────────
 PAGES = [
-    {"name": "Home", "icon": "🏠", "path": "landing"},
-    {"name": "Manual Prediction", "icon": "🔬", "path": "manual_prediction"},
-    {"name": "Image Prediction", "icon": "📸", "path": "image_prediction"},
-    {"name": "Analytics", "icon": "📊", "path": "analytics"},
-    {"name": "Prediction History", "icon": "📜", "path": "history"},
-    {"name": "Mushroom Encyclopedia", "icon": "📖", "path": "encyclopedia"},
-    {"name": "Settings", "icon": "⚙️", "path": "settings"},
-    {"name": "About", "icon": "ℹ️", "path": "about"},
+    {"name": "Home", "icon": "🏠", "path": "pages/0_home.py", "tooltip": "Go to the home page"},
+    {"name": "Select Method", "icon": "⚡", "path": "pages/1_select_method.py", "tooltip": "Choose classification method"},
+    {"name": "Feature Classification", "icon": "🔬", "path": "pages/2_manual.py", "tooltip": "Classify a mushroom by selecting its physical features"},
+    {"name": "Image Classification", "icon": "📸", "path": "pages/3_image.py", "tooltip": "Upload an image for classification"},
+    {"name": "History", "icon": "📜", "path": "pages/4_history.py", "tooltip": "Review past predictions"},
+    {"name": "Analytics", "icon": "📊", "path": "pages/5_analytics.py", "tooltip": "View prediction trends"},
+    {"name": "About & Settings", "icon": "ℹ️", "path": "pages/6_about.py", "tooltip": "Information about the project and model"},
 ]
 
 # ── Ensure required directories exist ──────────────────────────────
 for dir_path in [DATA_DIR, MODELS_DIR, ASSETS_DIR, REPORTS_DIR]:
     dir_path.mkdir(parents=True, exist_ok=True)
+

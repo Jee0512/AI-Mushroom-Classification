@@ -1,72 +1,64 @@
 """
 Image preprocessing utilities for the Mushroom Classifier.
-Prepares images for the EfficientNetB0 classification model.
+Prepares images for PyTorch, Scikit-Learn, or Keras image classification models.
 """
 import numpy as np
 from PIL import Image
-from tensorflow.keras.applications.efficientnet import (
-    preprocess_input as efficientnet_preprocess_input,
-)
+
+try:
+    import torch
+    import torchvision.transforms as transforms
+    TORCH_AVAILABLE = True
+except Exception:
+    TORCH_AVAILABLE = False
 
 
-def preprocess_image(image: Image.Image, target_size=(224, 224)) -> np.ndarray:
+def preprocess_image(image: Image.Image, target_size=(224, 224)):
     """
-    Resize and normalize the input image for the EfficientNetB0 model.
-
-    Args:
-        image: PIL Image in RGB mode
-        target_size: Target (height, width)
-
-    Returns:
-        numpy.ndarray: Preprocessed image array of shape (1, H, W, C)
+    Resize and normalize the input PIL Image into a multi-format payload for models.
     """
-    # Convert to RGB if needed
     if image.mode != "RGB":
         image = image.convert("RGB")
 
-    # Resize image
-    image = image.resize(target_size)
+    resized = image.resize(target_size)
+    arr = np.array(resized, dtype=np.uint8)
+    try:
+        from build_sklearn_image_model import extract_image_features
+        feats = extract_image_features(arr)
+    except Exception:
+        feats = None
 
-    # Convert to numpy array
-    img_array = np.array(image)
+    tensor = None
+    if TORCH_AVAILABLE:
+        try:
+            transform = transforms.Compose([
+                transforms.Resize(target_size),
+                transforms.ToTensor(),
+                transforms.Normalize(
+                    mean=[0.485, 0.456, 0.406],
+                    std=[0.229, 0.224, 0.225]
+                )
+            ])
+            tensor = transform(image).unsqueeze(0)
+        except Exception:
+            tensor = None
 
-    # Expand dimensions to create a batch (1, H, W, C)
-    img_array = np.expand_dims(img_array, axis=0)
-
-    # Normalize using EfficientNet's specific preprocessing
-    img_array = efficientnet_preprocess_input(img_array)
-
-    return img_array
+    return {
+        "tensor": tensor,
+        "array": arr,
+        "features": feats,
+    }
 
 
 def get_image_preview(image: Image.Image, target_size=(224, 224)) -> Image.Image:
-    """
-    Return a resized preview of the image (for display purposes).
-
-    Args:
-        image: PIL Image
-        target_size: Target size
-
-    Returns:
-        PIL Image resized to target size
-    """
+    """Return a resized preview of the image."""
     return image.resize(target_size)
 
 
 def validate_image(image: Image.Image) -> bool:
-    """
-    Validate that the uploaded image is usable.
-
-    Args:
-        image: PIL Image
-
-    Returns:
-        True if the image is valid, False otherwise
-    """
+    """Validate that the uploaded image is usable."""
     try:
-        # Check image is not corrupt
         image.verify()
-        # Re-open after verify (verify invalidates the image)
         return True
     except Exception:
         return False

@@ -3,7 +3,72 @@ Prediction utilities for the Mushroom Classifier.
 Handles risk calculation, confidence evaluation, and feature explanations.
 """
 import streamlit as st
+import numpy as np
 from typing import Tuple, Dict, List
+
+
+def predict_with_scores(model, input_scaled: np.ndarray) -> dict:
+    """
+    Predict class and return an honest score payload.
+
+    Never fabricates probabilities. If predict_proba is available it is used
+    and labeled as a model probability (Platt-scaled for SVM). Otherwise a
+    raw decision_function score is returned and must not be shown as a %.
+    """
+    prediction = model.predict(input_scaled)[0]
+    predicted_class_idx = int(prediction)
+
+    proba = None
+    if hasattr(model, "predict_proba"):
+        try:
+            proba = np.asarray(model.predict_proba(input_scaled)[0], dtype=float)
+        except Exception:
+            proba = None
+
+    decision_score = None
+    if hasattr(model, "decision_function"):
+        try:
+            decision_score = float(np.ravel(model.decision_function(input_scaled))[0])
+        except Exception:
+            decision_score = None
+
+    if proba is not None:
+        score_type = "probability"
+        score_value = float(proba[predicted_class_idx])
+        score_label = "Model probability (SVM, Platt-scaled — not a safety guarantee)"
+    elif decision_score is not None:
+        score_type = "decision_score"
+        score_value = decision_score
+        score_label = "SVM decision score (signed distance to the class boundary)"
+    else:
+        score_type = "class_only"
+        score_value = None
+        score_label = "Class prediction only (no probability or decision score available)"
+
+    return {
+        "class_idx": predicted_class_idx,
+        "proba": proba,
+        "decision_score": decision_score,
+        "score_type": score_type,
+        "score_value": score_value,
+        "score_label": score_label,
+    }
+
+
+def predict_with_confidence(model, input_scaled: np.ndarray):
+    """
+    Make a class prediction and return probabilities when the model provides them.
+
+    Returns:
+        Tuple of (predicted_class_idx, probability_array_or_None)
+        probability_array is None when predict_proba is not available.
+    """
+    try:
+        result = predict_with_scores(model, input_scaled)
+        return result["class_idx"], result["proba"]
+    except Exception as e:
+        st.error(f"Error computing prediction: {str(e)}")
+        return None, None
 
 
 def calculate_confidence_and_risk(
@@ -21,28 +86,28 @@ def calculate_confidence_and_risk(
     """
     if predicted_class.upper() == "POISONOUS":
         if confidence >= 90:
-            risk_level = "High Risk"
+            risk_level = "Model: poisonous"
             risk_color = "red"
             risk_icon = "🔴"
         elif confidence >= 70:
-            risk_level = "Medium Risk"
+            risk_level = "Model leans poisonous"
             risk_color = "orange"
             risk_icon = "🟠"
         else:
-            risk_level = "Uncertain Risk"
+            risk_level = "Uncertain (do not eat)"
             risk_color = "gray"
             risk_icon = "⚪"
     else:  # EDIBLE
         if confidence >= 90:
-            risk_level = "Safe"
+            risk_level = "Model: edible"
             risk_color = "green"
             risk_icon = "🟢"
         elif confidence >= 70:
-            risk_level = "Low Risk"
+            risk_level = "Model leans edible"
             risk_color = "lightgreen"
             risk_icon = "🟡"
         else:
-            risk_level = "Uncertain Safety"
+            risk_level = "Uncertain (do not eat)"
             risk_color = "gray"
             risk_icon = "⚪"
 

@@ -36,17 +36,11 @@ def apply_theme_css():
     theme = get_theme()
     st.markdown(
         f"""
-        <script>
-            document.documentElement.setAttribute('data-theme', '{theme}');
-        </script>
         <style>
             .stApp {{
                 background-color: {'#121212' if theme == 'dark' else '#FAFAFA'} !important;
             }}
             .stApp header {{
-                background-color: {'#1E1E1E' if theme == 'dark' else '#FFFFFF'} !important;
-            }}
-            .css-1d391kg, .css-1lcbmhc {{
                 background-color: {'#1E1E1E' if theme == 'dark' else '#FFFFFF'} !important;
             }}
             .stSidebar {{

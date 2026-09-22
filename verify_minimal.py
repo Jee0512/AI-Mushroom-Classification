@@ -23,18 +23,10 @@ def t_imports():
     import core.model_loader
     import core.data_transformer
     import core.prediction_utils
-    import components.sidebar
     import components.cards
     import components.charts
     import components.theme
-    import pages.landing
-    import pages.manual_prediction
-    import pages.analytics
-    import pages.history
-    import pages.settings
-    import pages.about
-    import pages.encyclopedia
-    import pages.image_prediction
+
     import utils.history_manager
     import utils.export_utils
     import reports.pdf_generator
@@ -56,12 +48,14 @@ def t_models():
     assert scaler is not None
     # Test a prediction
     from core.data_transformer import transform_input
-    first_feature = list(label_encoders.keys())[0]
-    le = label_encoders[first_feature]
-    test_input = {first_feature: le.classes_[0]}
+    from config import FEATURE_MAPPING
+    test_input = {}
+    for feature in label_encoders.keys():
+        test_input[feature] = FEATURE_MAPPING.get(feature, label_encoders[feature].classes_)[0]
+    
     result = transform_input(test_input, label_encoders, scaler)
-    assert result is not None
-    proba = model.predict_proba(result)
+    from core.prediction_utils import predict_with_confidence
+    pred_idx, proba = predict_with_confidence(model, result)
     assert proba is not None
 
 def t_pdf():

@@ -53,6 +53,7 @@ def save_prediction(entry: dict):
         entry: Dictionary with keys: timestamp, method, prediction, confidence,
                risk_level, features (optional), image_name (optional), model
     """
+    init_db()
     conn = get_db_connection()
     cursor = conn.cursor()
     
@@ -88,6 +89,7 @@ def get_all_history() -> pd.DataFrame:
         DataFrame with columns: id, timestamp, method, prediction, confidence,
         risk_level, features, image_name, model, created_at
     """
+    init_db()
     conn = get_db_connection()
     
     query = "SELECT * FROM prediction_history ORDER BY id DESC"
@@ -181,6 +183,7 @@ def get_history_stats() -> dict:
     Returns:
         Dictionary with stats: total, edible, poisonous, manual, image, etc.
     """
+    init_db()
     conn = get_db_connection()
     cursor = conn.cursor()
     
