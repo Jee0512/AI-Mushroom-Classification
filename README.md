@@ -1,4 +1,4 @@
-# 🍄 Mushroom Classifier — AI-Powered Edibility Analysis
+# Mushroom Classifier — AI-Powered Edibility Analysis
 
 [![Streamlit App](https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=Streamlit&logoColor=white)](https://mushroom-classifier.streamlit.app)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
@@ -72,7 +72,7 @@ A **production-grade machine learning application** that classifies mushrooms as
 
 ---
 
-## 🏗️ Architecture
+##  Architecture
 
 ```
 mushroom-classifier/
@@ -140,7 +140,7 @@ mushroom-classifier/
 
 ---
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### Prerequisites
 - Python 3.10 or higher
@@ -206,7 +206,7 @@ docker run -p 8501:8501 mushroom-classifier
 3. Click **"New app"** and select your repository.
 4. Set the main file path to `app.py`.
 5. Add your model files as secrets (or use Git LFS).
-6. Deploy! 🚀
+6. Deploy! 
 
 ---
 
@@ -258,7 +258,7 @@ docker run -p 8501:8501 mushroom-classifier
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please follow these steps:
 
@@ -276,13 +276,13 @@ Contributions are welcome! Please follow these steps:
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 🙏 Acknowledgments
+##  Acknowledgments
 
 - **UCI Machine Learning Repository** for the mushroom dataset
 - **Streamlit** for the amazing web framework
@@ -292,7 +292,7 @@ This project is licensed under the **MIT License** — see the [LICENSE](LICENSE
 
 ---
 
-## 📞 Contact
+## Contact
 
 **Project Maintainer:** ML Engineering Team  
 **Email:** ml-team@mushroom-classifier.com  
@@ -301,7 +301,7 @@ This project is licensed under the **MIT License** — see the [LICENSE](LICENSE
 ---
 
 <p align="center">
-  Made with ❤️ and 🍄
+  Made with Mushroom
   <br>
   <strong>Don't eat wild mushrooms based on AI predictions!</strong>
 </p>
