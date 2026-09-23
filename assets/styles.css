@@ -657,17 +657,83 @@ div[data-testid="stSelectbox"] label,
     letter-spacing: 0.4px !important;
 }
 
-div[data-testid="stSelectbox"] > div > div {
-    background-color: #fff !important;
-    border: 1.5px solid #c8ded4 !important;
+[data-baseweb="select"] > div {
+    background-color: var(--forest-700) !important;
+}
+
+[data-baseweb="select"] {
+    background-color: var(--forest-700) !important;
+    border: 1.5px solid rgba(76, 175, 122, 0.35) !important;
     border-radius: 10px !important;
     font-size: 0.92rem !important;
-    color: #1a1a1a !important;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
     padding: 8px 12px !important;
 }
 
-div[data-testid="stSelectbox"] > div > div:hover { border-color: var(--emerald-500) !important; }
+[data-baseweb="select"] * {
+    color: #fff !important;
+}
+
+[data-baseweb="select"] input,
+[data-baseweb="select"] input[type="text"],
+[data-baseweb="select"] [role="combobox"] {
+    background-color: transparent !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    caret-color: #ffffff !important;
+    font-size: 0.92rem !important;
+    border: none !important;
+    outline: none !important;
+}
+
+[data-baseweb="select"] input::placeholder {
+    color: #fff !important;
+    opacity: 1 !important;
+}
+
+[data-baseweb="select"] svg {
+    color: #fff !important;
+    fill: #fff !important;
+    stroke: #fff !important;
+}
+
+[data-baseweb="select"]:hover {
+    border-color: var(--emerald-400) !important;
+}
+
+[data-baseweb="select"]:focus-within {
+    border-color: var(--emerald-400) !important;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25) !important;
+}
+
+[data-baseweb="popover"] {
+    background-color: var(--forest-700) !important;
+    border: 1.5px solid rgba(76, 175, 122, 0.35) !important;
+    border-radius: 10px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+[data-baseweb="popover"] * {
+    color: #fff !important;
+}
+
+[role="option"] {
+    background-color: var(--forest-700) !important;
+    color: #fff !important;
+    padding: 8px 12px !important;
+    font-size: 0.92rem !important;
+}
+
+[role="option"]:hover {
+    background-color: var(--forest-500) !important;
+    color: #fff !important;
+}
+
+[role="option"]:focus {
+    background-color: var(--forest-500) !important;
+    color: #fff !important;
+    outline: none !important;
+}
 
 div[data-testid="stFileUploader"] .stFiles {
     background: rgba(255,255,255,0.04);
